@@ -1,90 +1,90 @@
-# E-Commerce Customer Churn & Retention Analytics
+# End-to-End E-Commerce Customer Churn Pipeline & Enterprise Data Mart
 
-> **Business Impact:** Identified and localized **$152.03K Revenue at Risk** and designed data-driven retention strategies through an end-to-end data pipeline (SQL to Power BI).
-
----
-
-## 🚀 Executive Summary (The 5-Second Hook)
-This project integrates industry-scale data preprocessing using **Medallion Architecture** in MySQL and an interactive **3-Page Power BI Dashboard** to mitigate a critical customer retention crisis. The analytics pipeline successfully captured a macro churn rate of **16.84%** (948 churned customers) and uncovered a critical business anomaly: customers with perfect satisfaction scores (Score 5) exhibit a massive surge in churn (*The Silent Killer*). Furthermore, it localized the highest financial vulnerability within **Junior Users (1-6 months)**, accounting for **$50.7K** of the total revenue at risk.
+> **Business Value Impact:** Engineered a structured data pipeline using Medallion Architecture to isolate **$152.03K in Financial Revenue at Risk** caused by customer attrition, formulating data-driven retention strategies to mitigate a macro **16.84% Churn Rate**.
 
 ---
 
-## 📌 Context & Business Problem (Situation)
-An established E-commerce platform experienced a declining trend in customer retention, directly impacting monthly recurring revenue streams.
-* **Core Challenge:** Management lacked visibility into granular operational data. The legacy data was static, lacked standardized date dimensions, and contained heavy human-input anomalies from external systems.
-* **Objective:** Build an automated data pipeline to cleanse operational data, embed Product Owner business logic, and deliver an Executive Dashboard to detect churn risk in real-time.
+## 📌 Executive Summary (The 5-Second Pitch)
+This project integrates raw e-commerce operational data into a modern relational database architecture to systematically solve customer attrition. Leveraging the **Single Source of Truth (SSOT)** framework, this pipeline transforms unstandardized `VARCHAR`-based staging data into an optimized *Analytical View Layer* (SQL). This layer is seamlessly consumed in real-time by a 3-Page Power BI Dashboard (*Executive Overview, Behavioral Analytics, & Lifecycle Risk*) without compromising DAX semantic model rendering performance.
+
+* **Core Business Metrics:** Macro Churn Rate (16.84%), Total Revenue at Risk ($152.03K), New User Churn Rate (45.73%), Complain Rate (28.49%).
+* **Data Volume Processed:** 5,630 Unique Customers & 948 Churned Lifecycle Records.
+* **Tech Stack:** Advanced SQL (Type Casting, Dynamic View Engineering, Safe Division Handling), Power BI (Star Schema Modeling, Explicit DAX Semantic Layer).
 
 ---
 
-## 🎯 Project Scope & Deliverables (Task)
-As an End-to-End Data Analyst, my deliverables included:
-1. **Data Engineering:** Transforming static raw data into logical monthly snapshots to establish time-series validity.
-2. **Database Modeling:** Developing a centralized Data Mart utilizing a *Bronze-to-Gold* architecture via robust SQL VIEWs.
-3. **Business Intelligence:** Designing a robust *Star Schema* data model in Power BI and calculating dynamic business KPIs using advanced DAX.
+## 🖥️ Dashboard Previews
+
+### 1. Executive Churn Overview
+![Executive Overview](dashboards/Executive%20Churn%20Overview.png)
+
+### 2. Behavioral & Promo Analytics
+![Behavioral Analytics](dashboards/Behavioral%20%26%20Promo%20Analytics.png)
+
+### 3. Customer Cohort & Lifecycle Risk
+![Cohort Risk](dashboards/Customer%20Cohort%20%26%20Lifecycle%20Risk.png)
 
 ---
 
-## 🛠️ Data Pipeline & Architecture (Action)
+## 📊 1. Situation & Context (S)
+In high-velocity E-commerce ecosystems, acquiring a new customer (*Customer Acquisition Cost* / CAC) is up to 5x more expensive than retaining an existing one (*Customer Retention*). Executive stakeholders faced extreme visibility gaps regarding a macro churn rate of **16.84%**. Operational transaction logs and customer profiles were heavily fragmented across unstandardized formats (*dirty data*), riddled with structural nulls (*missing values*), and plagued by categorical input text inconsistencies. Without a reliable, clean data abstraction layer bridging the data warehouse and the presentation layer, the Growth Marketing team could not deploy tactical intervention frameworks to prevent accelerating revenue leakage.
 
-              ┌──────────────────────────────┐
-              │   Source: Static CSV Data    │
-              └──────────────┬───────────────┘
-                             │
-                             ▼
-     ┌───────────────────────────────────────────────┐
-     │     BRONZE LAYER (raw_ecom.e_commerce)       │ --> Defensive Design (VARCHAR)
-     └───────────────┬───────────────────────────────┘
-                     │
-                     ▼
-     ┌───────────────────────────────────────────────┐
-     │     GOLD LAYER (analytics_gold.dim_churn)     │ --> CTEs, Cleansing, Casting
-     └───────────────┬───────────────────────────────┘
-                     │
-                     ▼
-     ┌───────────────────────────────────────────────┐
-     │    POWER BI LAYER (Star Schema Modeling)      │ --> DAX & Interactive Slicing
-     └───────────────────────────────────────────────┘
+## 🎯 2. Task & Objective (T)
+As the Technical Data Analyst, I owned the data modeling architecture and the business analytics logic deployment on the presentation layer. My core technical and strategic objectives included:
+1. **Data Infrastructure Segregation:** Isolating raw operational staging data (`raw_ecom`) from the analytical consumption environment (`analytics_gold`) using the Medallion Data Architecture framework.
+2. **Data Preprocessing & Structural Realignment:** Conducting login device standardization, deploying safe data-type conversions, handling null values defensively, and engineering downstream business metrics (e.g., `promo_transaction_ratio`) via SQL.
+3. **Executive Business Intelligence Delivery:** Engineering an interactive 3-page Power BI dashboard to isolate high-risk customer cohorts based on lifecycle duration (*Tenure*) and customer friction touchpoints (*Complaints*).
 
-### 1. SQL Optimization & Feature Engineering
-To maximize efficiency, heavy transformations were pushed upstream to the database engine (**Pushdown Optimization**) within `sql/02_analytics_view_transform.sql`:
-* **Advanced Inactivity Churn Rule:** Proactively flagged a customer as churned (`churn_target = 1`) if the historical flag was triggered **OR** if the user was inactive for $\ge$ 60 days.
-* **Promo Transaction Ratio:** Calculated the user's discount dependency to isolate *Promo Hunter* behavior profiles:
-  $$\text{Promo Ratio} = \frac{\text{coupons\_used\_count}}{\text{order\_count\_12m}}$$
+## 🛠️ 3. Action & Technical Implementation (A)
 
-### 2. Power BI Data Modeling (Star Schema)
-Data was ingested via *Import Mode* directly from the SQL VIEW layer. The data model was structured using a clean **Star Schema**, mapping the transactional snapshot fact table (`Fact_Customer_Snapshot`) to master dimension tables (`Dim_Customer_Profile` and `Dim_Date`). This approach decoupled complex business logic from the front-end, ensuring instant filter context rendering and zero dashboard lag.
+The data pipeline was systematically engineered across modular SQL execution layers:
 
----
+### A. Raw Ingestion & Staging Layer (`sql_queries/01_raw_table_setup.sql`)
+To completely mitigate ingestion pipeline failures triggered by empty strings or corrupted data types from the open-source Kaggle CSV file, all analytical metrics were ingested as raw `VARCHAR(50)` fields. This guaranteed data ingestion safety and decoupling.
 
-## 📊 Data Insights & Commercial Impact (Result)
+### B. Analytical Gold View & Feature Engineering (`sql_queries/02_analytics_view_transform.sql`)
+I constructed a highly performant *Dynamic View* (`dim_customer_churn_retention`) to execute computation-heavy preprocessing at the database layer, offloading compute strain from the BI engine memory:
+* **Advanced Imputation & Null Value Handling:** Converted empty string values and structural nulls within high-stakes metrics (`Tenure`, `WarehouseToHome`, `DaySinceLastOrder`) into standard fallback analytical flags (`0` or `-1`) using robust conditional `CASE WHEN` statements.
+* **Categorical String Standardization:** Fixed text redundancy anomalies by consolidating categorical values (e.g., merging `'Phone'` and `'Mobile Phone'` into a single standardized `'Mobile Phone'` string token) using `LOWER(TRIM())`.
+* **Mathematical Feature Engineering:** Calculated customer promotion dependency elasticity using a zero-division protected database logic formula:
 
-### 1. Executive Churn Overview (Page 1)
-* **Localized Financial Crisis:** Out of **5.63K total customers**, **948 users are actively churned (16.84%)**, exposing a severe **$152.03K Total Revenue at Risk**.
-* **Vulnerable Categories:** Users purchasing **Mobile Phones** generated the highest churn volume at **27.40%**, followed by the *Fashion* segment at **15.50%**.
-
-### 2. Behavioral & Promo Analytics (Page 2)
-* **Friction & Complaint Correlation:** The platform suffers from a **28.49% Complain Rate**. Granular analysis reveals that **31.67% of complaining customers eventually churn**, pointing to significant friction in customer service or logistics.
-* **Promo Hunter Fragility:** The business holds **3.62K Promo Hunters** with an **18.56% churn rate**. Data shows high transaction *recency* decay immediately after coupons are exhausted.
-
-### 3. Customer Cohort & Lifecycle Risk (Page 3)
-* **The "U-Curve" Anomaly (Silent Killer):** Granular slicing of *Satisfaction Scores* showed that while low scores (Score 1) naturally lead to high churn, **customers giving a perfect Score 5 unexpectedly exhibit an almost identical high churn rate**. This proves that high app ratings mask a segment of users secretly defecting to competitors due to unfulfilled long-term expectations or aggressive competitor targeting.
-* **The Primary Revenue Leak:** The highest financial risk **does not** come from brand-new users (`<1 Month` at $34.2K), but is heavily concentrated in **Junior Users (1-6 Months), leaking a massive $50.7K**.
-
----
-
-## 📂 Repository Structure
-```directory
-├── data/
-│   ├── raw/                           # Raw e-commerce dataset CSV
-│   └── processed/                     # Cleaned data extracts
-├── sql/
-│   ├── 01_raw_table_setup.sql         # Ingestion / Bronze Layer Setup
-│   └── 02_analytics_view_transform.sql # Transformation / Gold Layer View
-├── reports/
-│   └── ecommerce_churn_analytics.pbix # Power BI Dashboard source file
-└── README.md                          # Repository documentation
+```sql
+-- Promotion dependency metric formula used in production view execution
+ROUND(
+    CASE 
+        WHEN coupons_used_count > 0 AND order_count_12m > 0 
+            THEN CAST(coupons_used_count AS DECIMAL(10,2)) / CAST(order_count_12m AS DECIMAL(10,2))
+        ELSE 0.0
+    END, 2
+) AS promo_transaction_ratio
 
 
++-------------------------------+-------------------+------------------+-----------------------+
+|        Tenure Segment         |  Total Customers  | Churned Customers| Cohort Churn Rate (%) |
++-------------------------------+-------------------+------------------+-----------------------+
+| 0. New User (<1 Month)        |        772        |        353       |        45.73%         |
+| 1. Junior User (1-6 Months)   |       1642        |        425       |        25.88%         |
+| 2. Mid-Loyal (7-12 Months)    |       1320        |         75       |         5.68%         |
+| 3. Core Loyal (>1 Year)       |       1896        |         95       |         5.01%         |
++-------------------------------+-------------------+------------------+-----------------------+
 
-
-     
+📊 ecommerce-churn-analysis/
+│
+├── 📂 dashboards/
+│   ├── Behavioral & Promo Analytics.png
+│   ├── Customer Cohort & Lifecycle Risk.png
+│   ├── ECommerce_Churn_Analytics_Dashboard.pbix
+│   └── Executive Churn Overview.png
+│
+├── 📂 data/
+│   ├── Columns_Description.csv
+│   ├── cleaned_dataset.csv
+│   ├── cleaned_dataset_sample.csv
+│   └── raw_dataset.csv
+│
+├── 📂 sql_queries/
+│   ├── 01_raw_table_setup.sql
+│   ├── 02_analytics_view_transform.sql
+│   └── 03_business_insights_query.sql
+│
+└── README.md
