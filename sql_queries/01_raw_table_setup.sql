@@ -1,15 +1,18 @@
 -- ============================================================================
 -- Pipeline Stage : 1. Ingestion (Raw / Bronze Layer)
 -- File Name      : 01_raw_table_setup.sql
--- Description    : Creates the database schema and staging table for raw data.
---                  Uses loose data types (VARCHAR) to prevent ingestion failures
---                  caused by anomalies, empty strings, or untrimmed spaces in the source CSV.
+-- Description    : Initialized the foundational raw schema and staging table.
+--                  Utilizes permissive data types (VARCHAR) to guarantee seamless
+--                  data ingestion and prevent truncation failures caused by data
+--                  anomalies, missing values, or untrimmed spaces in the source CSV.
 -- Target Table   : raw_ecom.e_commerce_dataset (PHYSICAL TABLE)
 -- ============================================================================
 
+-- Create the operational staging database if it does not exist
 CREATE DATABASE IF NOT EXISTS raw_ecom;
 USE raw_ecom;
 
+-- Create the physical schema for the raw landing zone
 CREATE TABLE IF NOT EXISTS e_commerce_dataset (
     CustomerID INT PRIMARY KEY,
     Churn INT,
